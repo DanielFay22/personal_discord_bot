@@ -27,6 +27,7 @@ COMMANDS = {
     'stop': message_spammer.stop,
     'target_user': message_spammer.set_new_target,
     'set_message': message_spammer.set_spam_message,
+    'set_interval': message_spammer.set_spam_interval_sec,
     'quack': command_handlers.quack_handler,
 }
 

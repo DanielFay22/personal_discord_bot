@@ -27,6 +27,17 @@ class MessageSpammer(object):
         self.spam_message = new_message
         await message.channel.send(f"Updated spam message to: {self.spam_message}")
 
+    async def set_spam_interval_sec(self, message: discord.Message, new_interval: int|str, *args):
+        if isinstance(new_interval, str):
+            try:
+                new_interval = int(new_interval)
+            except ValueError:
+                await message.channel.send("Invalid value provided, expect integer.")
+
+        self.spam_loop.change_interval(seconds=new_interval)
+
+        await message.channel.send(f"Successfully updated message interval to {new_interval} seconds")
+
     async def start(self, message: discord.Message, *args):
         if self.running:
             await message.channel.send("Already running")
