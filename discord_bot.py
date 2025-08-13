@@ -30,6 +30,7 @@ COMMANDS = {
     'set_interval': message_spammer.set_spam_interval_sec,
     'quack': command_handlers.quack_handler,
     'kill': CommandHandlers.kill_handler,
+    'restart': CommandHandlers.restart_handler,
 }
 
 @client.event

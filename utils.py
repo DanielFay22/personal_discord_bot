@@ -14,7 +14,7 @@ class CommandHandlers(object):
         await message.channel.send("Hello!")
 
     async def quack_handler(self, message: discord.Message, *args):
-        katie_user = self.client.get_user(DAN_USER_ID)
+        katie_user = self.client.get_user(KATIE_USER_ID)
         quack_message = f"Quack {katie_user.mention}"
 
         await message.channel.send(quack_message)
@@ -26,3 +26,10 @@ class CommandHandlers(object):
             return
 
         sys.exit(12345)
+
+    @staticmethod
+    async def restart_handler(message: discord.Message, *args):
+        if message.author.id != DAN_USER_ID:
+            return
+
+        sys.exit(0)
