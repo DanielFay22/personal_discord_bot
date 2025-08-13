@@ -23,37 +23,37 @@ class MessageSpammer(object):
     def set_initial_message(self, new_message: str):
         self.initial_message = new_message
 
-    def set_spam_message(self, new_message: str, *args) -> str:
+    async def set_spam_message(self, message: discord.Message, new_message: str, *args):
         self.spam_message = new_message
-        return f"Updated spam message to: {self.spam_message}"
+        await message.channel.send(f"Updated spam message to: {self.spam_message}")
 
-    def start(self, *args) -> str:
+    async def start(self, message: discord.Message, *args):
         if self.running:
-            return "Already running"
+            await message.channel.send("Already running")
         else:
             if self.user is None:
                 self.find_user.start()
             else:
                 self.spam_loop.start()
             self.running = True
-            return "Started successfully"
+            await message.channel.send("Started successfully")
 
-    def stop(self, *args) -> str:
+    async def stop(self, message: discord.Message, *args):
         if not self.running:
-            return "Already stopped"
+            await message.channel.send("Already stopped")
         else:
             self.spam_loop.stop()
             self.find_user.stop()
             self.running = False
-            return "Stopped successfully"
+            await message.channel.send("Stopped successfully")
 
-    def set_new_target(self, new_target_user_id: int|str, *args) -> str:
+    async def set_new_target(self, message: discord.Message, new_target_user_id: int|str, *args):
         if isinstance(new_target_user_id, str):
             try:
                 new_target_user_id = int(new_target_user_id)
             except ValueError:
                 logger.error(f"Received invalid user id: {new_target_user_id}, ignoring input")
-                return "Failed to update target user to requested ID"
+                await message.channel.send("Failed to update target user to requested ID")
 
         if self.spam_loop.is_running():
             self.spam_loop.stop()
@@ -64,7 +64,7 @@ class MessageSpammer(object):
         if self.running and not self.find_user.is_running():
             self.find_user.start()
 
-        return "Successfully updated targeted user ID."
+        await message.channel.send("Successfully updated targeted user ID.")
 
 
     def find_user_helper(self):
