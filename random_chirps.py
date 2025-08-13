@@ -65,13 +65,13 @@ class RandomChirper(object):
     def start_chirp_parse_args(self, *args) -> None:
         parser = argparse.ArgumentParser(add_help=False)
         parser.add_argument("target_user_id", type=int)
-        parser.add_argument("message", type=str),
         parser.add_argument("--min-interval", type=int, default=self.min_interval)
         parser.add_argument("--max-interval", type=int, default=self.max_interval)
+        parser.add_argument("message", type=str, nargs='+'),
 
         res = parser.parse_args(args)
 
         self.target_user_id = res.target_user_id
-        self.message = res.message
+        self.message = " ".join(res.message)
         self.min_interval = res.min_interval
         self.max_interval = res.max_interval
