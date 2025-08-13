@@ -1,4 +1,5 @@
 import discord
+import sys
 
 KATIE_USER_ID = 1302003829998358611
 DAN_USER_ID = 406294459903377408
@@ -19,3 +20,9 @@ class CommandHandlers(object):
         await message.channel.send(quack_message)
         await katie_user.send(quack_message)
 
+    @staticmethod
+    async def kill_handler(message: discord.Message, *args):
+        if message.author.id != DAN_USER_ID:
+            return
+
+        sys.exit(12345)
