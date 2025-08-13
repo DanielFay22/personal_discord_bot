@@ -1,7 +1,7 @@
 import discord
 import logging
 from message_spammer import MessageSpammer
-from utils import KATIE_USER_ID, DAN_USER_ID, CommandHandlers
+from utils import KATIE_USER_ID, DAN_USER_ID, CommandHandlers, unimplemented_handler
 
 with open("./token.txt") as f:
     TOKEN = f.read()
@@ -31,6 +31,8 @@ COMMANDS = {
     'quack': command_handlers.quack_handler,
     'kill': CommandHandlers.kill_handler,
     'restart': CommandHandlers.restart_handler,
+    'start_routine': unimplemented_handler,
+    'stop_routine': unimplemented_handler,
 }
 
 @client.event

@@ -33,3 +33,6 @@ class CommandHandlers(object):
             return
 
         sys.exit(0)
+
+async def unimplemented_handler(*args):
+    return None
