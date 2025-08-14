@@ -40,6 +40,7 @@ COMMANDS = {
     'restart': CommandHandlers.restart_handler,
     'chirp_start': random_chirper.start_chirp_handler,
     'chirp_stop': random_chirper.stop_chirp_handler,
+    'chirp_debug': random_chirper.debug_chirp_handler,
 }
 
 @client.event
