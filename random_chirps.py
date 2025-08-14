@@ -32,10 +32,13 @@ class RandomChirper(object):
         return random.randint(self.min_interval, self.max_interval)
 
     async def debug_chirp_handler(self, message: discord.Message, **kwargs):
-        await message.channel.send(
-            f"Active chirp from user {self.author_id} targeting {self.target_user_id}. "
-            f"Message: {self.message} - Frequency range: {self.min_interval}-{self.max_interval}"
-        )
+        if self.running:
+            await message.channel.send(
+                f"Active chirp from user {self.author_id} targeting {self.target_user_id}. "
+                f"Message: {self.message} - Frequency range: {self.min_interval}-{self.max_interval}"
+            )
+        else:
+            await message.channel.send(f"No chirp active.")
 
     async def start_chirp_handler(self, message: discord.Message, *args):
         if self.running:
