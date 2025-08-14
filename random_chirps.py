@@ -26,8 +26,16 @@ class RandomChirper(object):
 
         self.target_user_id = target_user_id
 
+        self.author_id = 0
+
     def get_new_interval(self) -> int:
         return random.randint(self.min_interval, self.max_interval)
+
+    async def debug_chirp_handler(self, message: discord.Message, **kwargs):
+        await message.channel.send(
+            f"Active chirp from user {self.author_id} targeting {self.target_user_id}. "
+            f"Message: {self.message} - Frequency range: {self.min_interval}-{self.max_interval}"
+        )
 
     async def start_chirp_handler(self, message: discord.Message, *args):
         if self.running:
@@ -45,8 +53,13 @@ class RandomChirper(object):
         if not self.running:
             await message.channel.send("Already stopped")
 
+        if self.author_id and self.author_id != message.author.id:
+            await message.channel.send("Operation not authorized")
+            return
+
         self.send_chirp.stop()
         self.running = False
+        self.author_id = 0
 
         await message.channel.send("Successfully stopped chirp process.")
 
