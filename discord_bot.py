@@ -51,6 +51,8 @@ COMMANDS = {
 
 @client.event
 async def on_message(message: discord.Message):
+    logger.info(f"Received message: {message.content}")
+
     if message.author == client.user:
         return
 
