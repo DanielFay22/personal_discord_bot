@@ -15,7 +15,15 @@ REPEAT_INTERVAL_SEC = 30
 jokes = [
     ("Atch", "Bless you!"),
     ("Europe", "No, you're a poo!"),
-    ("Boo", "you don't have to cry, it was only a joke...")
+    ("Boo", "you don't have to cry, it was only a joke..."),
+    ("Lettuce", "Lettuce in, we're hungry!"),
+    ("Yodelahee", "I didn't know you could yodel!"),
+    ("Orange", "Orange you glad I didn't say banana!"),
+    ("Peanut", "Peanut butter or jelly?"),
+    ("Guess", "Is it Katie?"),
+    ("Cargo", "Car go beep beep!"),
+    ("Dwayne", "Dwayne dee badtub I'm dwoning!"),
+    ("Hi", "Who is who?"),
 ]
 
 class JokeState(Enum):
@@ -82,7 +90,7 @@ class JokeBot(object):
             return
         # Third loop sends the punchline and ends the loop
         elif self.joke_state == JokeState.PUNCHLINE:
-            if message.content.lower().startswith(jokes[self.active_joke][0].lower()):
+            if message.content.lower().startswith(jokes[self.active_joke][0].lower() + " who"):
                 logger.info("Sending punchline")
                 await user.send(jokes[self.active_joke][1])
                 self.running = False
@@ -91,4 +99,5 @@ class JokeBot(object):
 
     @tasks.loop(seconds=KNOCK_KNOCK_INTERVAL_SEC)
     async def spam_loop(self, user: discord.User):
+        logger.info("Sending knock knock message")
         await user.send(INITIAL_MESSAGE)
