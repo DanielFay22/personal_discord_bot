@@ -47,6 +47,7 @@ class JokeBot(object):
             self.active_joke = random.randint(0, len(jokes) - 1)
             self.running = True
             self.joke_state = JokeState.INITIAL
+            await message.channel.send("Starting joke")
 
         # Handle joke update
         await self._handle_joke(message)
