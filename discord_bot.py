@@ -43,7 +43,7 @@ COMMANDS = {
     'chirp_start': random_chirper.start_chirp_handler,
     'chirp_stop': random_chirper.stop_chirp_handler,
     'chirp_debug': random_chirper.debug_chirp_handler,
-    'knock_knock': joke_handler.joke_handler,
+    'joke': joke_handler.joke_handler,
     'joke_stop': joke_handler.stop_joke_handler,
     'joke_target_user': joke_handler.set_target_user_handler,
 

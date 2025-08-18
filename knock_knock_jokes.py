@@ -1,9 +1,11 @@
 
+from os import stat
 import discord
 from discord.ext import tasks
 import random
 from enum import Enum
 import logging
+import re
 
 logger = logging.getLogger(__name__)
 
@@ -43,6 +45,12 @@ class JokeBot(object):
         self.active_joke = random.randint(0, len(jokes) - 1)
         self.joke_state = JokeState.END
 
+    @staticmethod
+    def clean_message(message: str):
+        stripped_content = message.lower()
+        stripped_content = re.sub(r'[^\w\s]','',stripped_content)
+        return stripped_content
+
 
     async def set_target_user_handler(self, message: discord.Message, new_target_user_id: int, *args):
         self.target_user_id = new_target_user_id
@@ -80,16 +88,17 @@ class JokeBot(object):
             return
         # Second loop sends the joke
         elif self.joke_state == JokeState.JOKE:
-            lower_content = message.content.lower()
-            if lower_content.startswith("who's there") or lower_content.startswith("whos there"):
+            if self.clean_message(message.content).startswith("whos there"):
                 logger.info("Sending joke")
                 self.spam_loop.cancel()
                 self.joke_state = JokeState.PUNCHLINE
                 await user.send(jokes[self.active_joke][0])
+            else:
+                logger.info(f"Invalid response: {message.content}")
             return
         # Third loop sends the punchline and ends the loop
         elif self.joke_state == JokeState.PUNCHLINE:
-            if message.content.lower().startswith(jokes[self.active_joke][0].lower() + " who"):
+            if self.clean_message(message.content).startswith(jokes[self.active_joke][0].lower() + " who"):
                 logger.info("Sending punchline")
                 await user.send(jokes[self.active_joke][1])
                 self.running = False
