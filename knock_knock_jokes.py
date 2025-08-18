@@ -9,8 +9,7 @@ logger = logging.getLogger(__name__)
 
 INITIAL_MESSAGE = "Knock, Knock"
 
-KNOCK_KNOCK_INTERVAL_SEC = 5
-REPEAT_INTERVAL_SEC = 30
+KNOCK_KNOCK_INTERVAL_SEC = 30
 
 jokes = [
     ("Atch", "Bless you!"),
