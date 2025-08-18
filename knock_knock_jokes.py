@@ -68,12 +68,14 @@ class JokeBot(object):
         
         # First loop always sends "Knock, Knock"
         if self.joke_state == JokeState.INITIAL:
+            logger.info("Sending initial knock knock message")
             self.spam_loop.start(user)
             self.joke_state = JokeState.JOKE
             return
         # Second loop sends the joke
         elif self.joke_state == JokeState.JOKE:
             if message.content.lower().startswith("who's there"):
+                logger.info("Sending joke")
                 self.spam_loop.cancel()
                 self.joke_state = JokeState.PUNCHLINE
                 await user.send(jokes[self.active_joke][0])
@@ -81,6 +83,7 @@ class JokeBot(object):
         # Third loop sends the punchline and ends the loop
         elif self.joke_state == JokeState.PUNCHLINE:
             if message.content.lower().startswith(jokes[self.active_joke][0].lower()):
+                logger.info("Sending punchline")
                 await user.send(jokes[self.active_joke][1])
                 self.running = False
                 self.joke_state = JokeState.END
