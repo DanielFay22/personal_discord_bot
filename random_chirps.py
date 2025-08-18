@@ -49,7 +49,6 @@ class RandomChirper(object):
         self.send_chirp.change_interval(seconds=self.get_new_interval())
         self.send_chirp.start()
         self.running = True
-        self.author_id = message.author.id
 
         await message.channel.send(f"Chirp started targeting user {self.target_user_id}")
 
