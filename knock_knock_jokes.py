@@ -31,7 +31,7 @@ class JokeBot(object):
         self.user = None
 
         self.running = False
-        self.active_joke = random.randint(0, len(jokes))
+        self.active_joke = random.randint(0, len(jokes) - 1)
         self.joke_state = JokeState.END
 
 
@@ -41,49 +41,43 @@ class JokeBot(object):
 
 
     async def joke_handler(self, message: discord.Message, *args):
-        if self.running:
-            # Handle joke update
-            if self.joke_state == JokeState.INITIAL:
-                # Message should roughly match "who's there"
-                if message.content.lower().startswith("who's there"):
-                    self.joke_state = JokeState.JOKE
-                    self.joke_loop.change_interval(seconds=REPEAT_INTERVAL_SEC)
-                return
-            elif self.joke_state == JokeState.JOKE:
-                # Message should roughly match <joke> who?
-                if message.content.lower().startswith(jokes[self.active_joke][0].lower()):
-                    self.joke_state = JokeState.PUNCHLINE
-                return
-            return
-        else:
-            self.active_joke = random.randint(0, len(jokes))
+        if not self.running:
+            self.active_joke = random.randint(0, len(jokes) - 1)
             self.running = True
             self.joke_state = JokeState.INITIAL
-            self.joke_loop.change_interval(seconds=KNOCK_KNOCK_INTERVAL_SEC)
-            self.joke_loop.start()
 
-    async def stop_joke_handler(self, message: discord.Message, *args):
+        # Handle joke update
+        await self._handle_joke(message)
+
+
+    async def stop_joke_handler(self, *args):
         if not self.running:
             return
 
         self.running = False
-        self.joke_handler.cancel()
+        self.joke_state = JokeState.END
 
-    @tasks.loop(seconds=5)
-    async def joke_loop(self):
+    async def _handle_joke(self, message: discord.Message):
         user = self.client.get_user(self.target_user_id)
 
         if not user:
             logger.error("Could not find user, exiting")
-
+        
+        # First loop always sends "Knock, Knock"
         if self.joke_state == JokeState.INITIAL:
             await user.send(INITIAL_MESSAGE)
+            self.joke_state = JokeState.JOKE
             return
+        # Second loop sends the joke
         elif self.joke_state == JokeState.JOKE:
-            await user.send(jokes[self.active_joke][0])
+            if message.content.lower().startswith("who's there"):
+                self.joke_state = JokeState.PUNCHLINE
+                await user.send(jokes[self.active_joke][0])
             return
+        # Third loop sends the punchline and ends the loop
         elif self.joke_state == JokeState.PUNCHLINE:
-            await user.send(jokes[self.active_joke][1])
-            self.joke_state = JokeState.END
-            self.joke_loop.cancel()
+            if message.content.lower().startswith(jokes[self.active_joke][0].lower()):
+                await user.send(jokes[self.active_joke][1])
+                self.running = False
+                self.joke_state = JokeState.END
             return

@@ -27,7 +27,7 @@ TARGET_USER_ID = KATIE_USER_ID
 message_spammer = MessageSpammer(client=client, targeted_user_id=TARGET_USER_ID)
 random_chirper = RandomChirper(client=client, target_user_id=TARGET_USER_ID)
 command_handlers = CommandHandlers(client=client)
-joke_handler = JokeBot(client=client, target_user_id=DAN_USER_ID)
+joke_handler = JokeBot(client=client, target_user_id=KATIE_USER_ID)
 
 COMMAND_PREFIX = '$'
 COMMANDS = {
@@ -43,7 +43,7 @@ COMMANDS = {
     'chirp_start': random_chirper.start_chirp_handler,
     'chirp_stop': random_chirper.stop_chirp_handler,
     'chirp_debug': random_chirper.debug_chirp_handler,
-    'joke_start': joke_handler.joke_handler,
+    'knock_knock': joke_handler.joke_handler,
     'joke_stop': joke_handler.stop_joke_handler,
     'joke_target_user': joke_handler.set_target_user_handler,
 
