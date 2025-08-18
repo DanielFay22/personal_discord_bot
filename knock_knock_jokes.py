@@ -82,7 +82,8 @@ class JokeBot(object):
             return
         # Second loop sends the joke
         elif self.joke_state == JokeState.JOKE:
-            if message.content.lower().startswith("who's there"):
+            lower_content = message.content.lower()
+            if lower_content.startswith("who's there") or lower_content.startswith("whos there"):
                 logger.info("Sending joke")
                 self.spam_loop.cancel()
                 self.joke_state = JokeState.PUNCHLINE
