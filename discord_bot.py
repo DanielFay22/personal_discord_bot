@@ -8,7 +8,6 @@ from utils import (
     unimplemented_handler,
 )
 from random_chirps import RandomChirper
-from knock_knock_jokes import JokeBot
 
 with open("./token.txt") as f:
     TOKEN = f.read()
@@ -27,7 +26,6 @@ TARGET_USER_ID = KATIE_USER_ID
 message_spammer = MessageSpammer(client=client, targeted_user_id=TARGET_USER_ID)
 random_chirper = RandomChirper(client=client, target_user_id=TARGET_USER_ID)
 command_handlers = CommandHandlers(client=client)
-joke_handler = JokeBot(client=client, target_user_id=DAN_USER_ID)
 
 COMMAND_PREFIX = '$'
 COMMANDS = {
@@ -43,23 +41,12 @@ COMMANDS = {
     'chirp_start': random_chirper.start_chirp_handler,
     'chirp_stop': random_chirper.stop_chirp_handler,
     'chirp_debug': random_chirper.debug_chirp_handler,
-    'joke_start': joke_handler.joke_handler,
-    'joke_stop': joke_handler.stop_joke_handler,
-    'joke_target_user': joke_handler.set_target_user_handler,
-
 }
 
 @client.event
 async def on_message(message: discord.Message):
     if message.author == client.user:
         return
-
-    if isinstance(message.channel, discord.DMChannel):
-        # Handle DMs separately
-        if joke_handler.running:
-            await joke_handler.joke_handler(message)
-            return
-        pass
 
     # Handle command input
     if message.content.startswith(COMMAND_PREFIX):
