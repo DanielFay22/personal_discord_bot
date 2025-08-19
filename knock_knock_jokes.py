@@ -19,7 +19,6 @@ jokes = [
     ("Boo", "you don't have to cry, it was only a joke..."),
     ("Lettuce", "Lettuce in, we're hungry!"),
     ("Yodelahee", "I didn't know you could yodel!"),
-    ("Peanut", "Peanut butter or jelly?"),
     ("Guess", "Is it Katie?"),
     ("Cargo", "Car go beep beep!"),
     ("Dwayne", "Dwayne dee badtub I'm dwoning!"),
