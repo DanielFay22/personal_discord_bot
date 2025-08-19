@@ -29,7 +29,7 @@ message_spammer = MessageSpammer(client=client, targeted_user_id=TARGET_USER_ID)
 random_chirper = RandomChirper(client=client, target_user_id=TARGET_USER_ID)
 command_handlers = CommandHandlers(client=client)
 joke_handler = JokeBot(client=client, target_user_id=KATIE_USER_ID)
-happy_birthday_handler = HappyBirthday(client=client, target_user_id=DAN_USER_ID)
+happy_birthday_handler = HappyBirthday(client=client, target_user_id=KATIE_USER_ID)
 
 COMMAND_PREFIX = '$'
 COMMANDS = {
