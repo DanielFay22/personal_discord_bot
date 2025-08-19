@@ -9,6 +9,7 @@ from utils import (
 )
 from random_chirps import RandomChirper
 from knock_knock_jokes import JokeBot
+from happy_birthday import HappyBirthday
 
 with open("./token.txt") as f:
     TOKEN = f.read()
@@ -28,6 +29,7 @@ message_spammer = MessageSpammer(client=client, targeted_user_id=TARGET_USER_ID)
 random_chirper = RandomChirper(client=client, target_user_id=TARGET_USER_ID)
 command_handlers = CommandHandlers(client=client)
 joke_handler = JokeBot(client=client, target_user_id=KATIE_USER_ID)
+happy_birthday_handler = HappyBirthday(client=client, target_user_id=DAN_USER_ID)
 
 COMMAND_PREFIX = '$'
 COMMANDS = {
@@ -46,15 +48,16 @@ COMMANDS = {
     'joke': joke_handler.joke_handler,
     'joke_stop': joke_handler.stop_joke_handler,
     'joke_target_user': joke_handler.set_target_user_handler,
-
+    'happy_birthday': happy_birthday_handler.start_happy_birthday,
+    'sad_birthday': happy_birthday_handler.stop_happy_birthday,
 }
 
 @client.event
 async def on_message(message: discord.Message):
-    logger.info(f"Received message: {message.content}")
-
     if message.author == client.user:
         return
+
+    logger.info(f"Received message: {message.content}")
 
     if isinstance(message.channel, discord.DMChannel):
         # Handle DMs separately
