@@ -34,7 +34,7 @@ jokes = [
     ("Daiy", "Daisy me rollin', they hatin'"),
     ("To", "No, it's \"*To whom*\""),
     ("Dishes", "Dishes Sean Connery"),
-    ("Weave", "Weave been trying to reach you about your car's extended warranty.")
+    ("Weave", "Weave been trying to reach you about your car's extended warranty."),
     ("Cash", "No thank you, I'm allergic to nuts."),
 ]
 
