@@ -36,7 +36,6 @@ jokes = [
     ("Dishes", "Dishes Sean Connery"),
     ("Weave", "Weave been trying to reach you about your car's extended warranty.")
     ("Cash", "No thank you, I'm allergic to nuts."),
-    
 ]
 
 class JokeState(Enum):
