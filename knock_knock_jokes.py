@@ -23,6 +23,20 @@ jokes = [
     ("Cargo", "Car go beep beep!"),
     ("Dwayne", "Dwayne dee badtub I'm dwoning!"),
     ("Hi", "Who is who?"),
+    ("Owls", "Right"),
+    ("Cows", "No, silly, cows moo. Owls who."),
+    ("Monica", "Good job, Mr. President, just like we practiced"),
+    ("The KGB", "*Slap* We will be the ones asking the questions!"),
+    ("Candice", "Candice joke get any worse..."),
+    ("I eat mop", "Ewww, you eat your poo?"),
+    ("Panther", "Pather no path, I'm going thwimming!"),
+    ("Spell", "W-H-O"),
+    ("Daiy", "Daisy me rollin', they hatin'"),
+    ("To", "No, it's \"*To whom*\""),
+    ("Dishes", "Dishes Sean Connery"),
+    ("Weave", "Weave been trying to reach you about your car's extended warranty.")
+    ("Cash", "No thank you, I'm allergic to nuts."),
+    
 ]
 
 class JokeState(Enum):
