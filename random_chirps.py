@@ -5,7 +5,7 @@ import logging
 
 logger = logging.getLogger(__name__)
 
-class RandomChirper(object):
+class RandomChirper(commands.Cog):
     _running: bool = False
     _bot: commands.Bot
 

@@ -45,7 +45,7 @@ class JokeState(Enum):
 
 
 
-class JokeBot(object):
+class JokeBot(commands.Cog):
     _bot: commands.Bot
 
     _running: bool = False
@@ -69,55 +69,55 @@ class JokeBot(object):
     @commands.command(name="joke_target_user")
     async def set_target_user_handler(self, ctx: commands.Context, new_target_user_id: int):
         self._target_user_id = new_target_user_id
-        await ctx.send(f"Updated target user to: {self.target_user_id}")
+        await ctx.send(f"Updated target user to: {self._target_user_id}")
 
     @commands.command(name="joke")
     async def joke_handler(self, ctx: commands.Context):
-        if not self.running:
-            self.active_joke = random.randint(0, len(jokes) - 1)
-            self.running = True
-            self.joke_state = JokeState.INITIAL
+        if not self._running:
+            self._active_joke = random.randint(0, len(jokes) - 1)
+            self._running = True
+            self._joke_state = JokeState.INITIAL
 
         # Handle joke update
         await self._handle_joke(ctx)
 
     @commands.command(name="joke_stop")
     async def stop_joke_handler(self, ctx: commands.Context):
-        if not self.running:
+        if not self._running:
             return
 
-        self.running = False
-        self.joke_state = JokeState.END
+        self._running = False
+        self._joke_state = JokeState.END
 
     async def _handle_joke(self, ctx: commands.Context):
-        user = self.client.get_user(self.target_user_id)
+        user = self._bot.get_user(self._target_user_id)
 
         if not user:
             logger.error("Could not find user, exiting")
         
         # First loop always sends "Knock, Knock"
-        if self.joke_state == JokeState.INITIAL:
+        if self._joke_state == JokeState.INITIAL:
             logger.info("Sending initial knock knock message")
             self.spam_loop.start(user)
-            self.joke_state = JokeState.JOKE
+            self._joke_state = JokeState.JOKE
             return
         # Second loop sends the joke
-        elif self.joke_state == JokeState.JOKE:
+        elif self._joke_state == JokeState.JOKE:
             if self.clean_message(ctx.message.content).startswith("whos there"):
                 logger.info("Sending joke")
                 self.spam_loop.cancel()
-                self.joke_state = JokeState.PUNCHLINE
-                await user.send(jokes[self.active_joke][0])
+                self._joke_state = JokeState.PUNCHLINE
+                await user.send(jokes[self._active_joke][0])
             else:
                 logger.info(f"Invalid response: {ctx.message.content}")
             return
         # Third loop sends the punchline and ends the loop
-        elif self.joke_state == JokeState.PUNCHLINE:
-            if self.clean_message(ctx.message.content).startswith(jokes[self.active_joke][0].lower() + " who"):
+        elif self._joke_state == JokeState.PUNCHLINE:
+            if self.clean_message(ctx.message.content).startswith(jokes[self._active_joke][0].lower() + " who"):
                 logger.info("Sending punchline")
-                await user.send(jokes[self.active_joke][1])
-                self.running = False
-                self.joke_state = JokeState.END
+                await user.send(jokes[self._active_joke][1])
+                self._running = False
+                self._joke_state = JokeState.END
             return
 
     @tasks.loop(seconds=KNOCK_KNOCK_INTERVAL_SEC)

@@ -5,7 +5,7 @@ logger = logging.getLogger(__name__)
 
 SPAM_MESSAGE_INTERVAL_SEC = 2
 
-class MessageSpammer(object):
+class MessageSpammer(commands.Cog):
     initial_message = "Here come the ducks..."
     spam_message = "🐥"
 
