@@ -79,7 +79,7 @@ class JokeBot(commands.Cog):
             self._joke_state = JokeState.INITIAL
 
         # Handle joke update
-        await self._handle_joke(ctx)
+        await self._handle_joke(ctx.message)
 
     @commands.command(name="joke_stop")
     async def stop_joke_handler(self, ctx: commands.Context):
@@ -89,7 +89,14 @@ class JokeBot(commands.Cog):
         self._running = False
         self._joke_state = JokeState.END
 
-    async def _handle_joke(self, ctx: commands.Context):
+    @commands.Cog.listener()
+    async def on_message(self, message: discord.Message):
+        if isinstance(message.channel, discord.DMChannel) and self._running:
+            if message.channel.recipient.id == self._target_user_id:
+                await self._handle_joke(message)
+        
+
+    async def _handle_joke(self, message: discord.Message):
         user = self._bot.get_user(self._target_user_id)
 
         if not user:
@@ -103,17 +110,17 @@ class JokeBot(commands.Cog):
             return
         # Second loop sends the joke
         elif self._joke_state == JokeState.JOKE:
-            if self.clean_message(ctx.message.content).startswith("whos there"):
+            if self.clean_message(message.content).startswith("whos there"):
                 logger.info("Sending joke")
                 self.spam_loop.cancel()
                 self._joke_state = JokeState.PUNCHLINE
                 await user.send(jokes[self._active_joke][0])
             else:
-                logger.info(f"Invalid response: {ctx.message.content}")
+                logger.info(f"Invalid response: {message.content}")
             return
         # Third loop sends the punchline and ends the loop
         elif self._joke_state == JokeState.PUNCHLINE:
-            if self.clean_message(ctx.message.content).startswith(jokes[self._active_joke][0].lower() + " who"):
+            if self.clean_message(message.content).startswith(jokes[self._active_joke][0].lower() + " who"):
                 logger.info("Sending punchline")
                 await user.send(jokes[self._active_joke][1])
                 self._running = False
