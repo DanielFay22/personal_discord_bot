@@ -1,5 +1,4 @@
-import discord
-from discord.ext import tasks
+from discord.ext import tasks, commands
 import logging
 
 logger = logging.getLogger(__name__)
@@ -10,78 +9,72 @@ class MessageSpammer(object):
     initial_message = "Here come the ducks..."
     spam_message = "🐥"
 
-    def __init__(self, client: discord.Client, targeted_user_id: int):
-        self.client = client
+    _bot: commands.Bot
+    _running: bool = False
+
+    _message_count: int = 0
+
+    def __init__(self, bot: commands.Bot, targeted_user_id: int):
+        self._bot = bot
         self.targeted_user_id = targeted_user_id
         self.user = None
-
-        self.running = False
-        self.message_count = 0
 
         self.message_queue = []
 
     def set_initial_message(self, new_message: str):
         self.initial_message = new_message
 
-    async def set_spam_message(self, message: discord.Message, new_message: str, *args):
+    @commands.command(name="set_message")
+    async def set_spam_message(self, ctx: commands.Context, new_message: str):
         self.spam_message = new_message
-        await message.channel.send(f"Updated spam message to: {self.spam_message}")
+        await ctx.send(f"Updated spam message to: {self.spam_message}")
 
-    async def set_spam_interval_sec(self, message: discord.Message, new_interval: int|str, *args):
-        if isinstance(new_interval, str):
-            try:
-                new_interval = int(new_interval)
-            except ValueError:
-                await message.channel.send("Invalid value provided, expect integer.")
-
+    @commands.command(name="set_interval")
+    async def set_spam_interval_sec(self, ctx: commands.Context, new_interval: int):
         self.spam_loop.change_interval(seconds=new_interval)
 
-        await message.channel.send(f"Successfully updated message interval to {new_interval} seconds")
+        await ctx.send(f"Successfully updated message interval to {new_interval} seconds")
 
-    async def start(self, message: discord.Message, *args):
-        if self.running:
-            await message.channel.send("Already running")
+    @commands.command(name="start")
+    async def start(self, ctx: commands.Context):
+        if self._running:
+            await ctx.send("Already running")
         else:
             if self.user is None:
                 self.find_user.start()
             else:
                 self.spam_loop.start()
-            self.running = True
-            await message.channel.send("Started successfully")
+            self._running = True
+            await ctx.send("Started successfully")
 
-    async def stop(self, message: discord.Message, *args):
-        if not self.running:
-            await message.channel.send("Already stopped")
+    @commands.command(name="stop")
+    async def stop(self, ctx: commands.Context):
+        if not self._running:
+            await ctx.send("Already stopped")
         else:
             self.spam_loop.stop()
             self.find_user.stop()
-            self.running = False
-            await message.channel.send("Stopped successfully")
+            self._running = False
+            await ctx.send("Stopped successfully")
 
-    async def set_new_target(self, message: discord.Message, new_target_user_id: int|str, *args):
-        if isinstance(new_target_user_id, str):
-            try:
-                new_target_user_id = int(new_target_user_id)
-            except ValueError:
-                logger.error(f"Received invalid user id: {new_target_user_id}, ignoring input")
-                await message.channel.send("Failed to update target user to requested ID")
-
+    @commands.command(name="target_user")
+    async def set_new_target(self, ctx: commands.Context, new_target_user_id: int):
         if self.spam_loop.is_running():
             self.spam_loop.stop()
 
         self.targeted_user_id = new_target_user_id
 
         # Start search for new user
-        if self.running and not self.find_user.is_running():
+        if self._running and not self.find_user.is_running():
             self.find_user.start()
 
-        await message.channel.send("Successfully updated targeted user ID.")
+        await ctx.send("Successfully updated targeted user ID.")
 
 
     def find_user_helper(self):
         self.user = self.client.get_user(self.targeted_user_id)
 
-        if self.running:
+        if self._running:
             if self.user:
                 logger.info(f"Updating message target to {self.user.name}")
 
@@ -109,7 +102,7 @@ class MessageSpammer(object):
         while self.message_queue:
             await self.user.send(self.message_queue.pop(0))
 
-        self.message_count += 1
-        logger.info(f"Sending message, count: {self.message_count}")
+        self._message_count += 1
+        logger.info(f"Sending message, count: {self._message_count}")
 
         await self.user.send(self.spam_message)

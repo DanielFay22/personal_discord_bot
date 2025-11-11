@@ -1,38 +1,41 @@
 import discord
+from discord.ext import commands
 import sys
 
 KATIE_USER_ID = 1302003829998358611
 DAN_USER_ID = 406294459903377408
 
+@commands.command(name="hello")
+async def hello_handler(ctx):
+        await ctx.send("Hello!")
+
+@commands.command(name="kill")
+async def kill_handler(ctx):
+    if ctx.author.id != DAN_USER_ID:
+        return
+
+    sys.exit(12345)
+
+@commands.command(name="restart")
+async def restart_handler(ctx):
+    if ctx.author.id != DAN_USER_ID:
+        return
+
+    sys.exit(0)
+
 
 class CommandHandlers(object):
-    def __init__(self, client: discord.Client):
-        self.client = client
+    def __init__(self, bot: commands.Bot):
+        self._bot = bot
 
-    @staticmethod
-    async def hello_handler(message: discord.Message, *args):
-        await message.channel.send("Hello!")
-
-    async def quack_handler(self, message: discord.Message, *args):
+    @commands.command(name="quack")
+    async def quack_handler(self, ctx):
         katie_user = self.client.get_user(KATIE_USER_ID)
         quack_message = f"Quack {katie_user.mention}"
 
-        await message.channel.send(quack_message)
+        await ctx.send(quack_message)
         await katie_user.send(quack_message)
 
-    @staticmethod
-    async def kill_handler(message: discord.Message, *args):
-        if message.author.id != DAN_USER_ID:
-            return
-
-        sys.exit(12345)
-
-    @staticmethod
-    async def restart_handler(message: discord.Message, *args):
-        if message.author.id != DAN_USER_ID:
-            return
-
-        sys.exit(0)
 
 async def unimplemented_handler(*args):
     return None

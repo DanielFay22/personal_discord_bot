@@ -1,7 +1,6 @@
 
-from os import stat
 import discord
-from discord.ext import tasks
+from discord.ext import tasks, commands
 import random
 from enum import Enum
 import logging
@@ -47,14 +46,19 @@ class JokeState(Enum):
 
 
 class JokeBot(object):
-    def __init__(self, client: discord.Client, target_user_id: int):
-        self.client = client
-        self.target_user_id = target_user_id
-        self.user = None
+    _bot: commands.Bot
 
-        self.running = False
-        self.active_joke = random.randint(0, len(jokes) - 1)
-        self.joke_state = JokeState.END
+    _running: bool = False
+    _user: discord.User = None
+    _target_user_id: int
+
+    _active_joke: int = random.randint(0, len(jokes) - 1)
+    _joke_state: JokeState = JokeState.END
+
+    def __init__(self, bot: commands.Bot, target_user_id: int):
+        self._bot = bot
+        self._target_user_id = target_user_id
+
 
     @staticmethod
     def clean_message(message: str):
@@ -62,30 +66,30 @@ class JokeBot(object):
         stripped_content = re.sub(r'[^\w\s]','',stripped_content)
         return stripped_content
 
+    @commands.command(name="joke_target_user")
+    async def set_target_user_handler(self, ctx: commands.Context, new_target_user_id: int):
+        self._target_user_id = new_target_user_id
+        await ctx.send(f"Updated target user to: {self.target_user_id}")
 
-    async def set_target_user_handler(self, message: discord.Message, new_target_user_id: int, *args):
-        self.target_user_id = new_target_user_id
-        await message.channel.send(f"Updated target user to: {self.target_user_id}")
-
-
-    async def joke_handler(self, message: discord.Message, *args):
+    @commands.command(name="joke")
+    async def joke_handler(self, ctx: commands.Context):
         if not self.running:
             self.active_joke = random.randint(0, len(jokes) - 1)
             self.running = True
             self.joke_state = JokeState.INITIAL
 
         # Handle joke update
-        await self._handle_joke(message)
+        await self._handle_joke(ctx)
 
-
-    async def stop_joke_handler(self, *args):
+    @commands.command(name="joke_stop")
+    async def stop_joke_handler(self, ctx: commands.Context):
         if not self.running:
             return
 
         self.running = False
         self.joke_state = JokeState.END
 
-    async def _handle_joke(self, message: discord.Message):
+    async def _handle_joke(self, ctx: commands.Context):
         user = self.client.get_user(self.target_user_id)
 
         if not user:
@@ -99,17 +103,17 @@ class JokeBot(object):
             return
         # Second loop sends the joke
         elif self.joke_state == JokeState.JOKE:
-            if self.clean_message(message.content).startswith("whos there"):
+            if self.clean_message(ctx.message.content).startswith("whos there"):
                 logger.info("Sending joke")
                 self.spam_loop.cancel()
                 self.joke_state = JokeState.PUNCHLINE
                 await user.send(jokes[self.active_joke][0])
             else:
-                logger.info(f"Invalid response: {message.content}")
+                logger.info(f"Invalid response: {ctx.message.content}")
             return
         # Third loop sends the punchline and ends the loop
         elif self.joke_state == JokeState.PUNCHLINE:
-            if self.clean_message(message.content).startswith(jokes[self.active_joke][0].lower() + " who"):
+            if self.clean_message(ctx.message.content).startswith(jokes[self.active_joke][0].lower() + " who"):
                 logger.info("Sending punchline")
                 await user.send(jokes[self.active_joke][1])
                 self.running = False

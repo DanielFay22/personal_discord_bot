@@ -1,5 +1,4 @@
-import discord
-from discord.ext import tasks
+from discord.ext import tasks, commands
 import argparse
 import random
 import logging
@@ -7,17 +6,17 @@ import logging
 logger = logging.getLogger(__name__)
 
 class RandomChirper(object):
+    _running: bool = False
+    _bot: commands.Bot
 
     def __init__(
             self,
-            client: discord.Client,
+            bot: commands.Bot,
             target_user_id: int,
             min_interval_sec: int = 10,
             max_interval_sec: int = 3600,
     ):
-        self.client = client
-
-        self.running = False
+        self._bot = bot
 
         self.min_interval = min_interval_sec
         self.max_interval = max_interval_sec
@@ -31,45 +30,48 @@ class RandomChirper(object):
     def get_new_interval(self) -> int:
         return random.randint(self.min_interval, self.max_interval)
 
-    async def debug_chirp_handler(self, message: discord.Message, **kwargs):
-        if self.running:
-            await message.channel.send(
+    @commands.command(name="chirp_debug")
+    async def debug_chirp_handler(self, ctx):
+        if self._running:
+            await ctx.send(
                 f"Active chirp from user {self.author_id} targeting {self.target_user_id}. "
                 f"Message: {self.message} - Frequency range: {self.min_interval}-{self.max_interval}"
             )
         else:
-            await message.channel.send(f"No chirp active.")
+            await ctx.send(f"No chirp active.")
 
-    async def start_chirp_handler(self, message: discord.Message, *args):
-        if self.running:
-            await message.channel.send("Already running chirp")
+    @commands.command(name="chirp_start")
+    async def start_chirp_handler(self, ctx, *args):
+        if self._running:
+            await ctx.send("Already running chirp")
 
         self.start_chirp_parse_args(*args)
 
         self.send_chirp.change_interval(seconds=self.get_new_interval())
         self.send_chirp.start()
-        self.running = True
-        self.author_id = message.author.id
+        self._running = True
+        self.author_id = ctx.author.id
 
-        await message.channel.send(f"Chirp started targeting user {self.target_user_id}")
+        await ctx.send(f"Chirp started targeting user {self.target_user_id}")
 
-    async def stop_chirp_handler(self, message: discord.Message, *args):
-        if not self.running:
-            await message.channel.send("Already stopped")
+    @commands.command(name="chirp_stop")
+    async def stop_chirp_handler(self, ctx):
+        if not self._running:
+            await ctx.send("Already stopped")
 
-        if self.author_id and self.author_id != message.author.id:
-            await message.channel.send("Operation not authorized")
+        if self.author_id and self.author_id != ctx.author.id:
+            await ctx.send("Operation not authorized")
             return
 
         self.send_chirp.stop()
-        self.running = False
+        self._running = False
         self.author_id = 0
 
-        await message.channel.send("Successfully stopped chirp process.")
+        await ctx.send("Successfully stopped chirp process.")
 
     @tasks.loop(seconds=60)
     async def send_chirp(self):
-        user = self.client.get_user(self.target_user_id)
+        user = self._bot.get_user(self.target_user_id)
         if user:
             await user.send(self.message)
 
