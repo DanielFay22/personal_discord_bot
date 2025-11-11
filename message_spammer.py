@@ -72,7 +72,7 @@ class MessageSpammer(commands.Cog):
 
 
     def find_user_helper(self):
-        self.user = self.client.get_user(self.targeted_user_id)
+        self.user = self._bot.get_user(self.targeted_user_id)
 
         if self._running:
             if self.user:
