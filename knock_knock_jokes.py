@@ -91,6 +91,8 @@ class JokeBot(commands.Cog):
 
     @commands.Cog.listener()
     async def on_message(self, message: discord.Message):
+        if message.author.id == self._bot.user.id:
+            return
         if isinstance(message.channel, discord.DMChannel) and self._running:
             await self._handle_joke(message)
 
